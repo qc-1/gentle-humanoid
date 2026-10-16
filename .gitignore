@@ -7,5 +7,6 @@
 # Moved under assets/
 assets/visuals/*
 assets/plot/*
+assets/logs/*
 assets/*.npy
 assets/ckpts_old/*

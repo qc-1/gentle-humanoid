@@ -69,6 +69,61 @@ Tested on Ubuntu 22.04 with Python 3.10
 
 You can double-click a link in the simulation window and Ctrl + right-drag to apply an external force to that link.
 
+### Configurable Impulse Testing
+
+After the tracking policy has started, open a third terminal to configure and
+apply a repeatable force pulse:
+
+```bash
+python3 src/impulse_select.py
+```
+
+The sender starts with a 30 N force applied to `torso_link` for 0.1 s at the
+body-frame origin, pointing along world `+X`. Type `help` for all commands. A
+typical test is:
+
+```text
+body left_elbow_link
+force 30
+duration 0.1
+point 0.05 0 0
+direction 1 0 0
+frame world
+preview
+fire
+```
+
+- `point` is expressed in the selected body's local frame, in metres.
+- `direction` is normalized automatically and can be interpreted in either the
+  `world` or `body` frame.
+- The requested duration is rounded to the nearest 5 ms physics step. The
+  sender reports the actual duration and impulse in N*s.
+- Only one pulse can be active. Use `cancel` to stop it at the next physics
+  step before firing another pulse.
+- Yellow markers are previews; red markers indicate an active force pulse.
+- Full 200 Hz state logs are written to `assets/logs/` by default. Logging can
+  be selected explicitly with `--impulse-log` or disabled with
+  `--no-impulse-log` on `sim2sim.py`. Use `--impulse-log-dir <path>` to choose
+  another directory.
+
+```bash
+# Record CSV (this is also the default)
+python3 src/sim2sim.py --impulse-log
+
+# Run without creating an impulse CSV file
+python3 src/sim2sim.py --no-impulse-log
+```
+
+The paper's simulated per-link force range is capped at 30 N. The impulse tool
+allows larger values for robustness experiments, but reports them as
+out-of-distribution tests. This simulator-only tool is not a safety mechanism
+for a real robot. The existing Ctrl + right-drag force remains independently
+limited to 30 N.
+
+The UDP endpoint defaults to `127.0.0.1:28563`. If it needs to be changed, pass
+matching `--impulse-host` and `--impulse-port` options to `sim2sim.py`, and
+`--host` and `--port` options to `impulse_select.py`.
+
 https://github.com/user-attachments/assets/19c929eb-9731-4734-b021-d22356a839c9
 
 ## Run Sim2Real
